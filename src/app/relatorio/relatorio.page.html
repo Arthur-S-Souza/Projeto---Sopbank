@@ -1,0 +1,39 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/principal" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Extrato</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="wallet-content report-content ion-padding">
+  <ion-segment [(ngModel)]="filtro" (ionChange)="aplicarFiltro()">
+    <ion-segment-button value="todas"><ion-label>Todas</ion-label></ion-segment-button>
+    <ion-segment-button value="deposito"><ion-label>Depósitos</ion-label></ion-segment-button>
+    <ion-segment-button value="pix_enviado"><ion-label>Pix</ion-label></ion-segment-button>
+    <ion-segment-button value="transferencia_enviada"><ion-label>Transf.</ion-label></ion-segment-button>
+  </ion-segment>
+
+  <ion-spinner *ngIf="carregando" name="crescent" class="loading"></ion-spinner>
+
+  <ion-list class="glass-list" *ngIf="!carregando && transacoesFiltradas.length; else vazio">
+    <ion-item *ngFor="let t of transacoesFiltradas" lines="none">
+      <ion-label>
+        <h2>{{ rotuloTipo(t.tipo) }}</h2>
+        <p>{{ t.descricao }}</p>
+        <p class="date">{{ formatarData(t.criadoEm) }}</p>
+      </ion-label>
+      <ion-note slot="end" [ngClass]="t.tipo === 'saque' || t.tipo === 'transferencia_enviada' || t.tipo === 'pix_enviado' ? 'valor-saida' : 'valor-entrada'">
+        {{ formatarValor(t.tipo, t.valor) }}
+      </ion-note>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #vazio>
+    <div class="empty-state" *ngIf="!carregando">
+      <ion-icon name="receipt-outline" size="large"></ion-icon>
+      <p>Nenhuma transação neste filtro.</p>
+    </div>
+  </ng-template>
+</ion-content>

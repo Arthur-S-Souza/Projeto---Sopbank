@@ -1,0 +1,48 @@
+<ion-content class="auth-page">
+  <div class="auth-card ion-padding">
+    <ion-buttons>
+      <ion-button fill="clear" color="light" routerLink="/" aria-label="Voltar">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <div class="auth-header">
+      <ion-icon name="person-add-outline" class="auth-avatar"></ion-icon>
+      <h1>Abrir carteira</h1>
+      <p>Cadastre-se e comece a usar Pix e transferências</p>
+    </div>
+
+    <ion-list lines="none" class="auth-form">
+      <ion-item>
+        <ion-label position="stacked">Nome completo</ion-label>
+        <ion-input type="text" [(ngModel)]="nome"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">E-mail</ion-label>
+        <ion-input type="email" [(ngModel)]="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Senha</ion-label>
+        <ion-input type="password" [(ngModel)]="senha"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Telefone</ion-label>
+        <ion-input type="tel" [(ngModel)]="telefone"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">CPF</ion-label>
+        <ion-input inputmode="numeric" [(ngModel)]="cpf"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Data de nascimento</ion-label>
+        <ion-input type="date" [(ngModel)]="dataNascimento"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <div class="auth-actions">
+      <ion-button expand="block" color="secondary" [disabled]="carregando" (click)="cadastrar()">
+        {{ carregando ? 'Criando...' : 'Criar carteira' }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
