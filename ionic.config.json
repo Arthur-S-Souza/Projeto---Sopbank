@@ -1,0 +1,7 @@
+{
+  "name": "Sopbank",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
