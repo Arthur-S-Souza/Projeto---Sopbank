@@ -1,1 +1,6 @@
 @import '../login/login.page.scss';
+
+.auth-form {
+  max-height: 52vh;
+  overflow: auto;
+}

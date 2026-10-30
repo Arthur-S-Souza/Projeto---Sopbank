@@ -2,7 +2,9 @@ export type TipoTransacao =
   | 'deposito'
   | 'saque'
   | 'transferencia_enviada'
-  | 'transferencia_recebida';
+  | 'transferencia_recebida'
+  | 'pix_enviado'
+  | 'pix_recebido';
 
 export interface Transacao {
   id: string;
@@ -13,4 +15,5 @@ export interface Transacao {
   criadoEm: string;
   cpfDestino?: string;
   cpfOrigem?: string;
+  chavePix?: string;
 }

@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { CadastroPage } from './cadastro.page';
-import { AuthService } from '../services/auth.service';
 
 describe('CadastroPage', () => {
   let component: CadastroPage;
@@ -13,13 +13,7 @@ describe('CadastroPage', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [CadastroPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: { cadastrar: () => ({ ok: true }) },
-        },
-      ],
+      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CadastroPage);

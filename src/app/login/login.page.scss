@@ -1,33 +1,47 @@
 .auth-page {
-  --background: linear-gradient(180deg, #f4f6fb 0%, #ffffff 45%);
+  --background: linear-gradient(160deg, #120a28 0%, #2a145a 55%, #0f0820 100%);
+}
+
+.auth-card {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .auth-header {
   text-align: center;
-  margin: 1rem 0 2rem;
+  margin: 0.5rem 0 1.5rem;
 }
 
 .auth-avatar {
-  font-size: 4.5rem;
-  color: var(--ion-color-dark);
+  font-size: 3.5rem;
+  color: var(--ion-color-secondary);
 }
 
 .auth-header h1 {
   margin: 0.5rem 0 0;
+  color: #fff;
   font-weight: 700;
 }
 
 .auth-header p {
-  margin: 0.25rem 0 0;
-  color: var(--ion-color-medium);
+  margin: 0.35rem 0 0;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .auth-form {
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  margin-bottom: 1rem;
+}
+
+.auth-form ion-item {
+  --background: transparent;
+  --color: #fff;
 }
 
 .auth-actions ion-button {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
 }

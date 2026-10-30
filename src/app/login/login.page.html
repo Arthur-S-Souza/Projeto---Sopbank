@@ -1,30 +1,33 @@
-<ion-content class="auth-page ion-padding">
-  <ion-buttons>
-    <ion-button fill="clear" routerLink="/" aria-label="Voltar">
-      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-    </ion-button>
-  </ion-buttons>
+<ion-content class="auth-page">
+  <div class="auth-card ion-padding">
+    <ion-buttons>
+      <ion-button fill="clear" color="light" routerLink="/" aria-label="Voltar">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
 
-  <div class="auth-header">
-    <ion-icon name="person-circle-outline" class="auth-avatar"></ion-icon>
-    <h1>Login</h1>
-    <p>Acesse sua conta Sopbank</p>
-  </div>
+    <div class="auth-header">
+      <ion-icon name="log-in-outline" class="auth-avatar"></ion-icon>
+      <h1>Bem-vindo de volta</h1>
+      <p>Entre na sua carteira SopWallet</p>
+    </div>
 
-  <ion-list lines="full" class="auth-form">
-    <ion-item>
-      <ion-label position="stacked">E-mail</ion-label>
-      <ion-input type="email" [(ngModel)]="email" autocomplete="email"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="stacked">Senha</ion-label>
-      <ion-input type="password" [(ngModel)]="senha" autocomplete="current-password"></ion-input>
-    </ion-item>
-  </ion-list>
+    <ion-list lines="none" class="auth-form">
+      <ion-item>
+        <ion-label position="stacked">E-mail</ion-label>
+        <ion-input type="email" [(ngModel)]="email" autocomplete="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Senha</ion-label>
+        <ion-input type="password" [(ngModel)]="senha" autocomplete="current-password"></ion-input>
+      </ion-item>
+    </ion-list>
 
-  <div class="auth-actions">
-    <ion-button expand="block" fill="outline" color="dark" routerLink="/">Cancelar</ion-button>
-    <ion-button expand="block" color="dark" (click)="entrar()">Entrar</ion-button>
-    <ion-button expand="block" fill="clear" routerLink="/cadastro">Criar conta</ion-button>
+    <div class="auth-actions">
+      <ion-button expand="block" color="secondary" [disabled]="carregando" (click)="entrar()">
+        {{ carregando ? 'Entrando...' : 'Entrar' }}
+      </ion-button>
+      <ion-button expand="block" fill="clear" color="light" routerLink="/cadastro">Criar carteira</ion-button>
+    </div>
   </div>
 </ion-content>

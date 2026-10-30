@@ -8,10 +8,16 @@ import { AuthService } from '../services/auth.service';
 export class AuthGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
-  canActivate(): boolean | UrlTree {
-    if (this.auth.isAutenticado()) {
-      return true;
+  async canActivate(): Promise<boolean | UrlTree> {
+    if (!this.auth.isAutenticado()) {
+      return this.router.parseUrl('/login');
     }
-    return this.router.parseUrl('/login');
+    if (!this.auth.getUsuarioLogado()) {
+      const perfil = await this.auth.carregarPerfil();
+      if (perfil.ok === false) {
+        return this.router.parseUrl('/login');
+      }
+    }
+    return true;
   }
 }

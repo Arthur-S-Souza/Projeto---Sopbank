@@ -12,40 +12,39 @@ import { formatarMoeda } from '../utils/moeda.util';
 export class RelatorioPage implements OnInit {
   transacoes: Transacao[] = [];
   filtro = 'todas';
+  transacoesFiltradas: Transacao[] = [];
+  carregando = false;
 
   constructor(private auth: AuthService, private conta: ContaService) {}
 
   ngOnInit(): void {
-    this.carregar();
+    void this.carregar();
   }
 
   ionViewWillEnter(): void {
-    this.carregar();
+    void this.carregar();
   }
 
-  carregar(): void {
+  async carregar(): Promise<void> {
     const usuario = this.auth.getUsuarioLogado();
     if (!usuario) {
       this.transacoes = [];
+      this.transacoesFiltradas = [];
       return;
     }
-    this.transacoes = this.conta.listarDoUsuario(usuario.id);
-    this.aplicarFiltro();
+    this.carregando = true;
+    this.transacoes = await this.conta.listarDoUsuario(usuario.id, this.filtro);
+    this.carregando = false;
+    this.transacoesFiltradas = this.transacoes;
   }
 
-  transacoesFiltradas: Transacao[] = [];
-
-  aplicarFiltro(): void {
-    if (this.filtro === 'todas') {
-      this.transacoesFiltradas = this.transacoes;
-      return;
-    }
-    this.transacoesFiltradas = this.transacoes.filter((t) => t.tipo === this.filtro);
+  async aplicarFiltro(): Promise<void> {
+    await this.carregar();
   }
 
   formatarValor(tipo: Transacao['tipo'], valor: number): string {
     const sinal =
-      tipo === 'saque' || tipo === 'transferencia_enviada' ? '-' : '+';
+      tipo === 'saque' || tipo === 'transferencia_enviada' || tipo === 'pix_enviado' ? '-' : '+';
     return `${sinal} ${formatarMoeda(valor)}`;
   }
 
@@ -55,6 +54,8 @@ export class RelatorioPage implements OnInit {
       saque: 'Saque',
       transferencia_enviada: 'Transferência enviada',
       transferencia_recebida: 'Transferência recebida',
+      pix_enviado: 'Pix enviado',
+      pix_recebido: 'Pix recebido',
     };
     return map[tipo];
   }

@@ -1,7 +1,16 @@
+.report-content {
+  --background: transparent;
+}
+
+.loading {
+  display: block;
+  margin: 2rem auto;
+}
+
 .empty-state {
   text-align: center;
   margin-top: 2rem;
-  color: var(--ion-color-medium);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 ion-segment {
@@ -9,11 +18,21 @@ ion-segment {
 }
 
 .valor-entrada {
-  color: var(--ion-color-success);
-  font-weight: 600;
+  color: var(--ion-color-secondary);
+  font-weight: 700;
 }
 
 .valor-saida {
-  color: var(--ion-color-danger);
-  font-weight: 600;
+  color: #ff8fab;
+  font-weight: 700;
+}
+
+.date {
+  opacity: 0.75;
+  font-size: 0.8rem;
+}
+
+.glass-list {
+  background: var(--wallet-card);
+  border-radius: 16px;
 }

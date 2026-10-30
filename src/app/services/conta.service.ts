@@ -1,143 +1,125 @@
 import { Injectable } from '@angular/core';
-import { Transacao, TipoTransacao } from '../models/transacao.model';
-import { Usuario } from '../models/usuario.model';
-import { limparCpf } from '../utils/cpf.util';
-import { gerarId } from '../utils/id.util';
+import { HttpClient } from '@angular/common/http';
+import { Transacao } from '../models/transacao.model';
+import { Carteira, Usuario } from '../models/usuario.model';
+import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { StorageService } from './storage.service';
 
-const TRANSACOES_KEY = 'sopbank:transacoes';
+type OperacaoResposta = { saldo: number; transacao?: Transacao };
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContaService {
-  constructor(private auth: AuthService, private storage: StorageService) {}
+  constructor(
+    private http: HttpClient,
+    private api: ApiService,
+    private auth: AuthService
+  ) {}
 
-  private getTransacoes(): Transacao[] {
-    return this.storage.get<Transacao[]>(TRANSACOES_KEY) ?? [];
-  }
-
-  private saveTransacoes(transacoes: Transacao[]): void {
-    this.storage.set(TRANSACOES_KEY, transacoes);
-  }
-
-  private novaTransacao(
-    usuarioId: string,
-    tipo: TipoTransacao,
-    valor: number,
-    descricao: string,
-    extra?: Pick<Transacao, 'cpfDestino' | 'cpfOrigem'>
-  ): Transacao {
-    return {
-      id: gerarId(),
-      usuarioId,
-      tipo,
-      valor,
-      descricao,
-      criadoEm: new Date().toISOString(),
-      ...extra,
-    };
-  }
-
-  listarDoUsuario(usuarioId: string): Transacao[] {
-    return this.getTransacoes()
-      .filter((t) => t.usuarioId === usuarioId)
-      .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
-  }
-
-  depositar(valor: number): { ok: true } | { ok: false; mensagem: string } {
-    const usuario = this.auth.getUsuarioLogado();
-    if (!usuario) {
-      return { ok: false, mensagem: 'Faça login para continuar.' };
+  async obterCarteira(): Promise<{ ok: true; data: Carteira } | { ok: false; mensagem: string }> {
+    try {
+      const data = await this.http.get<Carteira>(`${this.api.url}/wallet`).toPromise();
+      if (data) {
+        this.auth.atualizarUsuarioLocal(data);
+      }
+      return { ok: true, data: data! };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
     }
-    if (!valor || valor <= 0) {
-      return { ok: false, mensagem: 'Informe um valor maior que zero.' };
-    }
-
-    usuario.saldo = Math.round((usuario.saldo + valor) * 100) / 100;
-    this.auth.atualizarUsuario(usuario);
-
-    const transacoes = this.getTransacoes();
-    transacoes.push(
-      this.novaTransacao(usuario.id, 'deposito', valor, 'Depósito em conta')
-    );
-    this.saveTransacoes(transacoes);
-    return { ok: true };
   }
 
-  sacar(valor: number): { ok: true } | { ok: false; mensagem: string } {
-    const usuario = this.auth.getUsuarioLogado();
-    if (!usuario) {
-      return { ok: false, mensagem: 'Faça login para continuar.' };
+  async listarDoUsuario(usuarioId: string, filtro = 'todas'): Promise<Transacao[]> {
+    const params = filtro !== 'todas' ? `?tipo=${filtro}` : '';
+    try {
+      return (
+        (await this.http
+          .get<Transacao[]>(`${this.api.url}/transactions${params}`)
+          .toPromise()) ?? []
+      );
+    } catch {
+      return [];
     }
-    if (!valor || valor <= 0) {
-      return { ok: false, mensagem: 'Informe um valor maior que zero.' };
-    }
-    if (valor > usuario.saldo) {
-      return { ok: false, mensagem: 'Saldo insuficiente.' };
-    }
-
-    usuario.saldo = Math.round((usuario.saldo - valor) * 100) / 100;
-    this.auth.atualizarUsuario(usuario);
-
-    const transacoes = this.getTransacoes();
-    transacoes.push(this.novaTransacao(usuario.id, 'saque', valor, 'Saque em conta'));
-    this.saveTransacoes(transacoes);
-    return { ok: true };
   }
 
-  transferir(
+  private aplicarSaldo(saldo: number): void {
+    const atual = this.auth.getUsuarioLogado();
+    if (atual) {
+      this.auth.atualizarUsuarioLocal({ ...atual, saldo });
+    }
+  }
+
+  async depositar(valor: number): Promise<{ ok: true } | { ok: false; mensagem: string }> {
+    try {
+      const res = await this.http
+        .post<OperacaoResposta>(`${this.api.url}/wallet/deposit`, { valor: Number(valor) })
+        .toPromise();
+      this.aplicarSaldo(res!.saldo);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
+    }
+  }
+
+  async sacar(valor: number): Promise<{ ok: true } | { ok: false; mensagem: string }> {
+    try {
+      const res = await this.http
+        .post<OperacaoResposta>(`${this.api.url}/wallet/withdraw`, { valor: Number(valor) })
+        .toPromise();
+      this.aplicarSaldo(res!.saldo);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
+    }
+  }
+
+  async transferir(
     cpfDestino: string,
     valor: number
-  ): { ok: true } | { ok: false; mensagem: string } {
-    const remetente = this.auth.getUsuarioLogado();
-    if (!remetente) {
-      return { ok: false, mensagem: 'Faça login para continuar.' };
+  ): Promise<{ ok: true } | { ok: false; mensagem: string }> {
+    try {
+      const res = await this.http
+        .post<OperacaoResposta>(`${this.api.url}/wallet/transfer`, {
+          cpfDestino,
+          valor: Number(valor),
+        })
+        .toPromise();
+      this.aplicarSaldo(res!.saldo);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
     }
-    if (!valor || valor <= 0) {
-      return { ok: false, mensagem: 'Informe um valor maior que zero.' };
+  }
+
+  async enviarPix(
+    chave: string,
+    valor: number
+  ): Promise<{ ok: true } | { ok: false; mensagem: string }> {
+    try {
+      const res = await this.http
+        .post<OperacaoResposta>(`${this.api.url}/wallet/pix`, {
+          chave,
+          valor: Number(valor),
+        })
+        .toPromise();
+      this.aplicarSaldo(res!.saldo);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
     }
-    if (valor > remetente.saldo) {
-      return { ok: false, mensagem: 'Saldo insuficiente.' };
+  }
+
+  async atualizarChavePix(
+    chavePix: string
+  ): Promise<{ ok: true; usuario: Usuario } | { ok: false; mensagem: string }> {
+    try {
+      const usuario = await this.http
+        .put<Usuario>(`${this.api.url}/wallet/pix-key`, { chavePix })
+        .toPromise();
+      this.auth.atualizarUsuarioLocal(usuario!);
+      return { ok: true, usuario: usuario! };
+    } catch (error) {
+      return { ok: false, mensagem: this.api.mensagemErro(error) };
     }
-
-    const cpf = limparCpf(cpfDestino);
-    if (cpf === remetente.cpf) {
-      return { ok: false, mensagem: 'Não é possível transferir para a própria conta.' };
-    }
-
-    const usuarios = this.storage.get<Usuario[]>('sopbank:usuarios') ?? [];
-    const destinatario = usuarios.find((u) => u.cpf === cpf);
-    if (!destinatario) {
-      return { ok: false, mensagem: 'Conta de destino não encontrada.' };
-    }
-
-    remetente.saldo = Math.round((remetente.saldo - valor) * 100) / 100;
-    destinatario.saldo = Math.round((destinatario.saldo + valor) * 100) / 100;
-    this.auth.atualizarUsuario(remetente);
-
-    const atualizados = usuarios.map((u) => {
-      if (u.id === destinatario.id) {
-        return destinatario;
-      }
-      if (u.id === remetente.id) {
-        return remetente;
-      }
-      return u;
-    });
-    this.storage.set('sopbank:usuarios', atualizados);
-
-    const transacoes = this.getTransacoes();
-    transacoes.push(
-      this.novaTransacao(remetente.id, 'transferencia_enviada', valor, `Transferência para ${destinatario.nome}`, {
-        cpfDestino: destinatario.cpf,
-      }),
-      this.novaTransacao(destinatario.id, 'transferencia_recebida', valor, `Transferência de ${remetente.nome}`, {
-        cpfOrigem: remetente.cpf,
-      })
-    );
-    this.saveTransacoes(transacoes);
-    return { ok: true };
   }
 }

@@ -1,34 +1,81 @@
 .landing {
-  --background: radial-gradient(circle at top, #2f3542 0%, #0f1115 55%);
+  --background: radial-gradient(circle at 20% 0%, #5b2eff 0%, #1b1035 45%, #0a0618 100%);
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.glow-a {
+  width: 220px;
+  height: 220px;
+  background: #00d4aa;
+  top: 12%;
+  right: -40px;
+}
+
+.glow-b {
+  width: 180px;
+  height: 180px;
+  background: #ff6bcb;
+  bottom: 20%;
+  left: -30px;
 }
 
 .hero {
   min-height: 78vh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
-.brand {
-  text-align: center;
+.brand-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 1rem;
+}
+
+.brand-badge ion-icon {
+  font-size: 2rem;
   color: #fff;
 }
 
-.brand ion-icon {
-  font-size: 4rem;
-  margin-bottom: 0.5rem;
-}
-
-.brand h1 {
-  font-size: 2.4rem;
+.hero h1 {
   margin: 0;
-  font-weight: 700;
+  color: #fff;
+  font-size: 2.6rem;
+  font-weight: 800;
 }
 
-.brand p {
-  margin-top: 0.75rem;
-  color: rgba(255, 255, 255, 0.78);
+.hero p {
+  margin: 0.75rem 0 1.5rem;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 22rem;
+  line-height: 1.45;
+}
+
+.feature-row {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.feature-row div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.92rem;
 }
 
 .landing-footer ion-toolbar {
@@ -37,5 +84,5 @@
 }
 
 .landing-btn {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.55rem;
 }

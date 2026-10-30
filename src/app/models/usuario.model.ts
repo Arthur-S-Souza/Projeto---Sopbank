@@ -2,11 +2,11 @@ export interface Usuario {
   id: string;
   nome: string;
   email: string;
-  senhaHash: string;
   telefone: string;
   cpf: string;
   dataNascimento: string;
   saldo: number;
+  chavePix: string;
   criadoEm: string;
 }
 
@@ -19,7 +19,14 @@ export interface DadosCadastro {
   dataNascimento: string;
 }
 
-export interface Sessao {
-  usuarioId: string;
-  email: string;
+export interface CarteiraResumo {
+  entradas: number;
+  saidas: number;
+  total: number;
 }
+
+export interface Carteira extends Usuario {
+  resumo: CarteiraResumo;
+}
+
+export type Resultado<T = void> = { ok: true; data?: T } | { ok: false; mensagem: string };

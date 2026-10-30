@@ -30,3 +30,7 @@ npm-debug.log*
 /platforms
 /plugins
 /www
+/server/node_modules
+/server/data
+/server/dist
+.env

@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 export class LoginPage {
   email = '';
   senha = '';
+  carregando = false;
 
   constructor(
     private auth: AuthService,
@@ -19,7 +20,9 @@ export class LoginPage {
   ) {}
 
   async entrar(): Promise<void> {
-    const resultado = this.auth.login(this.email, this.senha);
+    this.carregando = true;
+    const resultado = await this.auth.login(this.email, this.senha);
+    this.carregando = false;
     if (resultado.ok === false) {
       await this.mostrarToast(resultado.mensagem, 'danger');
       return;

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, MenuController, ToastController } from '@ionic/angular';
 import { Transacao } from '../models/transacao.model';
+import { CarteiraResumo } from '../models/usuario.model';
 import { AuthService } from '../services/auth.service';
 import { ContaService } from '../services/conta.service';
 import { formatarCpf } from '../utils/cpf.util';
@@ -13,11 +14,17 @@ import { formatarMoeda } from '../utils/moeda.util';
   styleUrls: ['./principal.page.scss'],
 })
 export class PrincipalPage {
+  abaAtiva: 'operar' | 'pix' = 'operar';
   valorDeposito?: number;
   valorSaque?: number;
   valorTransferencia?: number;
   cpfDestino = '';
+  chavePixDestino = '';
+  valorPix?: number;
+  novaChavePix = '';
   ultimasTransacoes: Transacao[] = [];
+  resumo: CarteiraResumo = { entradas: 0, saidas: 0, total: 0 };
+  carregando = false;
 
   constructor(
     private menu: MenuController,
@@ -29,11 +36,7 @@ export class PrincipalPage {
   ) {}
 
   ionViewWillEnter(): void {
-    if (!this.auth.isAutenticado()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.atualizarDados();
+    void this.atualizarDados();
   }
 
   get usuario() {
@@ -48,12 +51,30 @@ export class PrincipalPage {
     return this.usuario ? formatarCpf(this.usuario.cpf) : '';
   }
 
-  atualizarDados(): void {
-    const usuario = this.usuario;
-    if (!usuario) {
+  async onRefresh(event: CustomEvent): Promise<void> {
+    await this.atualizarDados();
+    (event.target as HTMLIonRefresherElement).complete();
+  }
+
+  async atualizarDados(): Promise<void> {
+    if (!this.auth.isAutenticado()) {
+      await this.router.navigate(['/login']);
       return;
     }
-    this.ultimasTransacoes = this.conta.listarDoUsuario(usuario.id).slice(0, 5);
+    this.carregando = true;
+    const carteira = await this.conta.obterCarteira();
+    this.carregando = false;
+    if (carteira.ok === false) {
+      await this.mostrarToast(carteira.mensagem, 'danger');
+      return;
+    }
+    this.resumo = carteira.data.resumo;
+    this.novaChavePix = carteira.data.chavePix;
+    const usuario = this.auth.getUsuarioLogado();
+    if (usuario) {
+      this.ultimasTransacoes = await this.conta.listarDoUsuario(usuario.id);
+      this.ultimasTransacoes = this.ultimasTransacoes.slice(0, 5);
+    }
   }
 
   abrirMenu(): void {
@@ -62,37 +83,58 @@ export class PrincipalPage {
   }
 
   async depositar(): Promise<void> {
-    const resultado = this.conta.depositar(Number(this.valorDeposito));
+    const resultado = await this.conta.depositar(Number(this.valorDeposito));
     if (resultado.ok === false) {
       await this.mostrarToast(resultado.mensagem, 'danger');
       return;
     }
     this.valorDeposito = undefined;
-    this.atualizarDados();
+    await this.atualizarDados();
     await this.mostrarToast('Depósito realizado.', 'success');
   }
 
   async sacar(): Promise<void> {
-    const resultado = this.conta.sacar(Number(this.valorSaque));
+    const resultado = await this.conta.sacar(Number(this.valorSaque));
     if (resultado.ok === false) {
       await this.mostrarToast(resultado.mensagem, 'danger');
       return;
     }
     this.valorSaque = undefined;
-    this.atualizarDados();
+    await this.atualizarDados();
     await this.mostrarToast('Saque realizado.', 'success');
   }
 
   async transferir(): Promise<void> {
-    const resultado = this.conta.transferir(this.cpfDestino, Number(this.valorTransferencia));
+    const resultado = await this.conta.transferir(this.cpfDestino, Number(this.valorTransferencia));
     if (resultado.ok === false) {
       await this.mostrarToast(resultado.mensagem, 'danger');
       return;
     }
     this.cpfDestino = '';
     this.valorTransferencia = undefined;
-    this.atualizarDados();
+    await this.atualizarDados();
     await this.mostrarToast('Transferência enviada.', 'success');
+  }
+
+  async enviarPix(): Promise<void> {
+    const resultado = await this.conta.enviarPix(this.chavePixDestino, Number(this.valorPix));
+    if (resultado.ok === false) {
+      await this.mostrarToast(resultado.mensagem, 'danger');
+      return;
+    }
+    this.chavePixDestino = '';
+    this.valorPix = undefined;
+    await this.atualizarDados();
+    await this.mostrarToast('Pix enviado.', 'success');
+  }
+
+  async salvarChavePix(): Promise<void> {
+    const resultado = await this.conta.atualizarChavePix(this.novaChavePix);
+    if (resultado.ok === false) {
+      await this.mostrarToast(resultado.mensagem, 'danger');
+      return;
+    }
+    await this.mostrarToast('Chave Pix atualizada.', 'success');
   }
 
   async confirmarLogout(): Promise<void> {
@@ -117,6 +159,8 @@ export class PrincipalPage {
       saque: 'Saque',
       transferencia_enviada: 'Transferência enviada',
       transferencia_recebida: 'Transferência recebida',
+      pix_enviado: 'Pix enviado',
+      pix_recebido: 'Pix recebido',
     };
     return map[tipo];
   }

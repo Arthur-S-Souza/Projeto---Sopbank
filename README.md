@@ -1,47 +1,85 @@
-# Sopbank
+# SopWallet (Sopbank)
 
-Aplicativo bancário demo (Ionic + Angular) com cadastro, login, saldo, depósitos, saques, transferências entre contas e extrato.
+Carteira virtual completa com **app Ionic/Angular** + **API REST Node.js** (Express, SQLite, JWT).
+
+## Arquitetura
+
+| Camada | Tecnologia | Pasta |
+|--------|------------|-------|
+| Frontend | Ionic 6 + Angular 13 | `src/` |
+| Backend | Express + TypeScript + SQLite | `server/` |
+| Auth | JWT Bearer + bcrypt | `server/src/services` |
+| Dados | SQLite (`server/data/sopbank.sqlite`) | persistido localmente |
 
 ## Funcionalidades
 
-- Tela inicial com atalhos para login e cadastro
-- Cadastro com validação de CPF, e-mail e senha
-- Login com sessão persistida no navegador (`localStorage`)
-- Painel da conta com saldo e operações financeiras
-- Transferências entre usuários cadastrados (por CPF)
-- Extrato filtrável por tipo de movimentação
-- Rotas protegidas para área logada
+- Cadastro e login com validação
+- Carteira com saldo em tempo real
+- Depósito, saque, transferência (CPF) e **Pix** (chave/e-mail/CPF)
+- Chave Pix personalizável
+- Extrato com filtros
+- Resumo de entradas, saídas e total de movimentações
+- UI renovada (tema roxo + menta, visual fintech)
 
-## Requisitos
+## API (prefixo `/api`)
 
-- Node.js 18+ (recomendado 20+)
-- npm 8+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/health` | Status da API |
+| POST | `/auth/register` | Criar conta |
+| POST | `/auth/login` | Login (retorna JWT) |
+| GET | `/auth/me` | Perfil autenticado |
+| GET | `/wallet` | Carteira + resumo |
+| POST | `/wallet/deposit` | Depósito |
+| POST | `/wallet/withdraw` | Saque |
+| POST | `/wallet/transfer` | Transferência por CPF |
+| POST | `/wallet/pix` | Pix por chave |
+| PUT | `/wallet/pix-key` | Atualizar chave Pix |
+| GET | `/transactions?tipo=` | Extrato |
 
-## Como executar
+## Como executar (recomendado)
 
 ```bash
 npm install --legacy-peer-deps
-npm start
+npm install --prefix server
+npm run dev
 ```
 
-Abra [http://localhost:4200](http://localhost:4200) no navegador.
+- Frontend: http://localhost:4200 (proxy `/api` → `localhost:3333`)
+- API: http://localhost:3333/api/health
 
-## Build de produção
+### Separado
 
 ```bash
+npm run start:api   # só backend
+npm start           # só frontend (com proxy)
+```
+
+## Variáveis de ambiente
+
+Copie `server/.env.example` para `server/.env` (opcional):
+
+- `PORT` — porta da API (padrão 3333)
+- `JWT_SECRET` — segredo do JWT
+- `DATABASE_PATH` — caminho do SQLite
+- `CORS_ORIGIN` — origem do app (padrão `http://localhost:4200`)
+
+## Testes
+
+```bash
+npm test
+npm run test:api
+```
+
+## Build produção
+
+```bash
+npm run build:api
 npm run build
 ```
 
-Os arquivos ficam em `www/`.
+Serve a pasta `www/` atrás de um reverse proxy que encaminhe `/api` para a API Node.
 
-## Observações
+## Observação de segurança
 
-- Os dados ficam apenas no navegador (sem backend). Limpar o storage apaga contas e transações.
-- Senhas são armazenadas com hash simples apenas para demonstração — não use em produção.
-
-## Estrutura
-
-- `src/app/services` — autenticação e operações de conta
-- `src/app/guards` — proteção de rotas autenticadas
-- `src/app/principal` — dashboard da conta
-- `src/app/relatorio` — extrato de transações
+Projeto educacional/demonstrativo. Em produção use HTTPS, segredos fortes, rate limit, auditoria e banco gerenciado.

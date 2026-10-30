@@ -15,6 +15,7 @@ export class CadastroPage {
   telefone = '';
   cpf = '';
   dataNascimento = '';
+  carregando = false;
 
   constructor(
     private auth: AuthService,
@@ -23,7 +24,8 @@ export class CadastroPage {
   ) {}
 
   async cadastrar(): Promise<void> {
-    const resultado = this.auth.cadastrar({
+    this.carregando = true;
+    const resultado = await this.auth.cadastrar({
       nome: this.nome,
       email: this.email,
       senha: this.senha,
@@ -31,13 +33,14 @@ export class CadastroPage {
       cpf: this.cpf,
       dataNascimento: this.dataNascimento,
     });
+    this.carregando = false;
 
     if (resultado.ok === false) {
       await this.mostrarToast(resultado.mensagem, 'danger');
       return;
     }
 
-    await this.mostrarToast('Conta criada com sucesso!', 'success');
+    await this.mostrarToast('Carteira criada com sucesso!', 'success');
     await this.router.navigate(['/principal']);
   }
 
