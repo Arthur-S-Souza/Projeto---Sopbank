@@ -1,0 +1,41 @@
+.landing {
+  --background: radial-gradient(circle at top, #2f3542 0%, #0f1115 55%);
+}
+
+.hero {
+  min-height: 78vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.brand {
+  text-align: center;
+  color: #fff;
+}
+
+.brand ion-icon {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+}
+
+.brand h1 {
+  font-size: 2.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.brand p {
+  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.landing-footer ion-toolbar {
+  --background: transparent;
+  padding: 0 1rem 1rem;
+}
+
+.landing-btn {
+  margin-bottom: 0.5rem;
+}

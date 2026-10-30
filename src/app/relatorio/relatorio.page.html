@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/principal"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Extrato</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-segment [(ngModel)]="filtro" (ionChange)="aplicarFiltro()">
+    <ion-segment-button value="todas">
+      <ion-label>Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="deposito">
+      <ion-label>Depósitos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="saque">
+      <ion-label>Saques</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="transferencia_enviada">
+      <ion-label>Enviadas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="transferencia_recebida">
+      <ion-label>Recebidas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list *ngIf="transacoesFiltradas.length; else vazio">
+    <ion-item *ngFor="let t of transacoesFiltradas">
+      <ion-label>
+        <h2>{{ rotuloTipo(t.tipo) }}</h2>
+        <p>{{ t.descricao }}</p>
+        <p>{{ formatarData(t.criadoEm) }}</p>
+      </ion-label>
+      <ion-note slot="end" [ngClass]="t.tipo === 'saque' || t.tipo === 'transferencia_enviada' ? 'valor-saida' : 'valor-entrada'">
+        {{ formatarValor(t.tipo, t.valor) }}
+      </ion-note>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #vazio>
+    <div class="empty-state">
+      <ion-icon name="receipt-outline" size="large"></ion-icon>
+      <p>Nenhuma transação encontrada.</p>
+    </div>
+  </ng-template>
+</ion-content>

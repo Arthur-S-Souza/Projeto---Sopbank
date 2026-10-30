@@ -1,0 +1,20 @@
+.saldo-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 100%);
+  color: #fff;
+}
+
+.saldo-card ion-card-subtitle,
+.saldo-card ion-card-content {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.empty-hint {
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+ion-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

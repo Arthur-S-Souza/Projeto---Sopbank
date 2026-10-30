@@ -1,0 +1,33 @@
+.auth-page {
+  --background: linear-gradient(180deg, #f4f6fb 0%, #ffffff 45%);
+}
+
+.auth-header {
+  text-align: center;
+  margin: 1rem 0 2rem;
+}
+
+.auth-avatar {
+  font-size: 4.5rem;
+  color: var(--ion-color-dark);
+}
+
+.auth-header h1 {
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+}
+
+.auth-header p {
+  margin: 0.25rem 0 0;
+  color: var(--ion-color-medium);
+}
+
+.auth-form {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.auth-actions ion-button {
+  margin-bottom: 0.5rem;
+}

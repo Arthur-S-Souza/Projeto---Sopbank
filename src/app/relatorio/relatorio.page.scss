@@ -1,0 +1,19 @@
+.empty-state {
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--ion-color-medium);
+}
+
+ion-segment {
+  margin-bottom: 1rem;
+}
+
+.valor-entrada {
+  color: var(--ion-color-success);
+  font-weight: 600;
+}
+
+.valor-saida {
+  color: var(--ion-color-danger);
+  font-weight: 600;
+}
