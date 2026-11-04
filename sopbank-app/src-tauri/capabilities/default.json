@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissões padrão do SopBank",
+  "windows": ["main"],
+  "permissions": ["core:default", "sql:default", "sql:allow-load", "sql:allow-execute", "sql:allow-select", "sql:allow-close"]
+}
